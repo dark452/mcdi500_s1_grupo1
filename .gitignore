@@ -2,3 +2,10 @@
 .venv/
 venv/
 env/
+
+# Jupyter checkpoints
+.ipynb_checkpoints/
+
+# Temp files
+data/processed/*
+!data/processed/.gitkeep
