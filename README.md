@@ -1,40 +1,29 @@
 # MCDI500 - Impacto de la IA Generativa en Estudiantes
 
-
 ## Grupo 1 | MCDI500 - Programación para la ciencia de datos
 
-
 ### Integrantes
-
 
 - Pablo Ignacio Balbontin Constenla @pabbalbontin-maker
 - Melany Esmeralda Reyes Leiva @melanyreyesy
 - Ingeborg Andrea Munoz Carnot @dark452
 - Mario Alejandro Lopez Pulgar @malp2203
 
-
-
 ### Descripción de problemática
-
 
 El objetivo del proyecto es realizar un análisis del impacto de la utilización y frecuencia  de uso de la IA generativa sobre el rendimiento académico y el nivel de agotamiento de estudiantes universitarios.
 
-
-Dataset (AI student impact):
-
+*Dataset (AI student impact)*:
 
 - 50.000 registros
 - 16 columnas
 
-
-Columnas de interés:
-
+*Columnas de interés*:
 
 - Post_Semester_GPA (rendimiento académico)
 - Burnout_Risk_Level (nivel de agotamiento de los estudiantes universitarios)
 
-
-Estadísticas descriptivas del dataset:
+*Estadísticas descriptivas del dataset*:
 
 
 |       |    Student_ID |   Pre_Semester_GPA |   Weekly_GenAI_Hours |   Tool_Diversity |   Traditional_Study_Hours |   Perceived_AI_Dependency |   Anxiety_Level_During_Exams |   Post_Semester_GPA |   Skill_Retention_Score |
@@ -48,9 +37,7 @@ Estadísticas descriptivas del dataset:
 | 75%   | 137500.250000 |           3.521000 |            11.720000 |         4.000000 |                 14.710000 |                  5.000000 |                     6.000000 |            3.749000 |               85.190000 |
 | max   | 150000.000000 |           3.998000 |            40.000000 |         5.000000 |                 35.860000 |                 10.000000 |                    10.000000 |            4.000000 |              100.000000 |
 
-
 ### Estructura del repositorio
-
 
 ```bash
 mcdi500_s1_grupo1/
@@ -63,19 +50,16 @@ mcdi500_s1_grupo1/
 └── README.md
 ```
 
-
 ### Cómo reproducir el entorno
 
-
 El siguiente procedimiento, permite clonar el repositorio remoto en un entorno local.
-
 
 ```bash
 git clone https://github.com/dark452/mcdi500_s1_grupo1.git
 cd mcdi500_s1_grupo1
 python -m venv .venv
 source .venv/bin/activate   # Windows: .venv\Scripts\activate
-pip install -r requirements.txt
+pip install numpy pandas scikit-learn matplotlib seaborn jupyter
+pip freeze > requirements.txt
 jupyter notebook notebooks/F1_Definicion.ipynb
 ```
-
