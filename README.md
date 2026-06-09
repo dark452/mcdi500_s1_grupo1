@@ -63,3 +63,18 @@ pip install numpy pandas scikit-learn matplotlib seaborn jupyter
 pip freeze > requirements.txt
 jupyter notebook notebooks/F1_Definicion.ipynb
 ```
+
+### Fase 2 — EDA y Preparación de Datos
+
+*Proyecto:* Impacto de la IA Generativa en Estudiantes de Educación Superior  
+
+#### Objetivo
+
+Explorar el dataset en profundidad, limpiar y transformar los datos para dejarlos listos para la etapa de modelado.
+
+#### Funcionalidades
+
+1. *Limpieza de datos*: Tratamiento de inconsistencias y valores atípicos si se identifican.
+2. *Codificación de variables categóricas*: Transformar variables nominales y ordinales a formato numérico.
+3. *Escalamiento de variables numéricas*: Normalizar o estandarizar según la distribución de cada variable.
+4. *Exportación*: Guardar los datos transformados en data/processed/ para uso en F3.
