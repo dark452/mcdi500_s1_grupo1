@@ -78,3 +78,36 @@ Explorar el dataset en profundidad, limpiar y transformar los datos para dejarlo
 2. *Codificación de variables categóricas*: Transformar variables nominales y ordinales a formato numérico.
 3. *Escalamiento de variables numéricas*: Normalizar o estandarizar según la distribución de cada variable.
 4. *Exportación*: Guardar los datos transformados en data/processed/ para uso en F3.
+
+#### Librerías utilizadas
+
+Se importan las librerías necesarias para cargar, explorar, transformar y visualizar el dataset.
+
+| Librería | Función |
+|---|---|
+| `pandas` | Cargar y manipular la tabla de datos (el `DataFrame`). |
+| `numpy` | Operaciones numéricas y fijación de semilla aleatoria. |
+| `matplotlib` / `seaborn` | Visualizaciones del EDA (histogramas, boxplots, heatmap). |
+| `sklearn.preprocessing` | Las herramientas de codificación (`LabelEncoder`, `OneHotEncoder`) y escalamiento de variables numéricas (`StandardScaler`, `MinMaxScaler`). |
+
+`np.random.seed(42)` fija la semilla aleatoria: garantiza que cualquier proceso con azar dé **siempre el mismo resultado**, asegurando la *reproducibilidad* exigida en la fase.
+
+#### Funciones para reutilizar en el código Python
+
+* **`load_data(file_path)`**: Carga el dataset desde un archivo CSV y retorna un DataFrame con los datos.
+* **`show_tipos(df)`**: Muestra las columnas del dataset y el tipo de dato de cada una.
+* **`show_nulos(df)`**: Muestra la cantidad de valores nulos por columna.
+* **`show_estadisticas(df)`**: Muestra estadísticas descriptivas del dataset.
+* **`show_categories(df)`**: Muestra la frecuencia de valores por columna categórica.
+* **`mostrar_boxplots(df, columnas, titulo)`**: Genera un boxplot por cada columna numérica recibida por parámetro.
+* **`detectar_outliers(df, columnas)`**: Detectar valores atípicos mediante el método IQR y retorna una tabla resumen.
+* **`compute_skewness(df, cols)`**: Calcula el *skewness* de columnas numéricas, recomienda el escalador adecuado y retorna un DataFrame con los resultados.
+* **`drop_id_column(df, col)`**: Elimina del DataFrame la columna recibida por parámetro.
+* **`cast_bool_to_int(df, col)`**: Convierte una columna booleana a entero (`False` → 0, `True` → 1) y retorna el DataFrame con la columna en tipo `int64`.
+* **`encode_ordinal(df, col, order)`**: Codifica una variable ordinal asignando enteros según el orden definido y retorna el DataFrame con la columna reemplazada.
+* **`codificar_one_hot(df, col, nombres)`**: Codifica una variable nominal mediante `LabelEncoder` y `OneHotEncoder`, retornando el DataFrame con las columnas binarias añadidas y la columna original eliminada.
+* **`escalar_caracteristicas(df, cols_standard, cols_minmax)`**: Escala las variables numéricas aplicando `StandardScaler` o `MinMaxScaler` según la distribución de cada columna, y retorna una tupla con el DataFrame escalado y ambos escaladores ajustados.
+* **`export_processed(df, file_path)`**: Exporta el dataset procesado en formato CSV en la ruta recibida por parámetro.
+  
+
+
