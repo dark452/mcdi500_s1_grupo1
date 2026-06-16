@@ -9,3 +9,6 @@ env/
 # Temp files
 data/processed/*
 !data/processed/.gitkeep
+
+# Python cache
+ src/__pycache__/
