@@ -1,5 +1,5 @@
-import pandas as pd
 import numpy as np
+import pandas as pd
 from abc import ABC, abstractmethod
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder, StandardScaler, MinMaxScaler
 
@@ -64,7 +64,7 @@ class EliminadorColumna(Transformador):
 
 class CastBooleano(Transformador):
     """
-    Convierte una columna booleana a int64 (False→0, True→1).
+    Convierte una columna booleana a int64 (False ==> 0, True ==> 1).
 
     Parámetros
     ----------
@@ -81,7 +81,7 @@ class CastBooleano(Transformador):
             return df
         df = df.copy()
         df[self._col] = df[self._col].to_numpy().astype(int)
-        print(f"[OK] CastBooleano: '{self._col}' → int64. "
+        print(f"[OK] CastBooleano: '{self._col}' ==> int64. "
               f"Distribución: {df[self._col].value_counts().to_dict()}")
         return df
 
@@ -94,7 +94,7 @@ class CodificadorOrdinal(Transformador):
     """
     Asigna enteros consecutivos según la jerarquía real de una variable ordinal.
 
-    Preserva la relación de orden; aplicar One-Hot Encoding a una ordinal
+    Preserva la relación de orden, aplicar One-Hot Encoding a una ordinal
     destruiría esa relación y generaría columnas redundantes.
 
     Parámetros
@@ -120,7 +120,7 @@ class CodificadorOrdinal(Transformador):
         if nulos > 0:
             print(f"[ERROR] CodificadorOrdinal: '{self._col}' — {nulos} valores sin mapeo.")
         else:
-            print(f"[OK] CodificadorOrdinal: '{self._col}' → {mapping}")
+            print(f"[OK] CodificadorOrdinal: '{self._col}' ==> {mapping}")
         return df
 
 
@@ -128,7 +128,7 @@ class CodificadorOneHot(Transformador):
     """
     Codifica una variable nominal con LabelEncoder + OneHotEncoder.
 
-    Las variables nominales no tienen orden; asignarles un entero directo
+    Las variables nominales no tienen orden, asignarles un entero directo
     induciría una jerarquía falsa en los modelos.
 
     Parámetros
@@ -136,33 +136,67 @@ class CodificadorOneHot(Transformador):
     col : str
         Columna nominal a codificar.
     nombres : list[str]
-        Nombres de las columnas binarias resultantes (orden alfabético de categorías).
+        Nombres de las columnas binarias resultantes, en el mismo orden que
+        `categorias` (por convención del equipo, orden alfabético).
+    categorias : list[str], optional
+        Catálogo completo de categorías esperadas para `col`, en el mismo
+        orden que `nombres`. Si se omite, se infieren del DataFrame recibido
+        en `aplicar()`,  válido únicamente si ese DataFrame contiene garantizadamente 
+        todas las categorías posibles, como el dataset completo. 
+        Para lotes parciales, pasar `categorias` explícitamente.
     """
 
-    def __init__(self, col: str, nombres: list) -> None:
+    def __init__(self, col: str, nombres: list, categorias: list = None) -> None:
         self._col = col
         self._nombres = nombres
+        self._categorias = categorias
 
     def aplicar(self, df: pd.DataFrame) -> pd.DataFrame:
         if self._col not in df.columns:
             print(f"[WARN] CodificadorOneHot: columna '{self._col}' no encontrada.")
             return df
         df = df.copy()
-        le = LabelEncoder()
-        le.fit(df[self._col])
-        if len(self._nombres) != len(le.classes_):
+
+        # Catálogo fijo (recomendado) o inferido del lote (legado).
+        if self._categorias is not None:
+            categorias_fit = sorted(self._categorias)
+        else:
+            categorias_fit = sorted(df[self._col].unique())
+            print(f"[WARN] CodificadorOneHot: '{self._col}' sin catálogo explícito; "
+                  f"se infiere del lote recibido ({len(categorias_fit)} categorías). "
+                  f"Esto puede fallar con lotes parciales.")
+
+        if len(self._nombres) != len(categorias_fit):
             raise ValueError(
-                f"Se esperaban {len(le.classes_)} nombres para '{self._col}', "
-                f"se recibieron {len(self._nombres)}."
+                f"Se esperaban {len(categorias_fit)} nombres para '{self._col}' "
+                f"({categorias_fit}), pero se recibieron {len(self._nombres)}."
             )
+
+        # Si el lote contiene una categoría fuera del catálogo, es un error de datos,
+        # no un problema de tamaño de lote: se reporta explícitamente.
+        categorias_en_lote = set(df[self._col].unique())
+        desconocidas = categorias_en_lote - set(categorias_fit)
+        if desconocidas:
+            raise ValueError(
+                f"'{self._col}' contiene categorías fuera del catálogo esperado: "
+                f"{sorted(desconocidas)}. Catálogo: {categorias_fit}."
+            )
+
+        le = LabelEncoder()
+        le.fit(categorias_fit)
         datos_le = le.transform(df[self._col]).reshape(-1, 1)
-        ohe = OneHotEncoder(sparse_output=False)
+
+        # categories= fuerza a OneHotEncoder a generar una columna por cada
+        # categoría del catálogo, incluso si no aparece en este lote.
+        ohe = OneHotEncoder(categories=[np.arange(len(categorias_fit))], sparse_output=False)
         matriz = ohe.fit_transform(datos_le)
+
         nuevas = pd.DataFrame(matriz, columns=self._nombres, index=df.index).astype(int)
         df = df.drop(columns=[self._col]).reset_index(drop=True)
         nuevas = nuevas.reset_index(drop=True)
         resultado = pd.concat([df, nuevas], axis=1)
-        print(f"[OK] CodificadorOneHot: '{self._col}' → {self._nombres}")
+        print(f"[OK] CodificadorOneHot: '{self._col}' ==> {self._nombres} "
+              f"(catálogo fijo: {len(categorias_fit)} categorías)")
         return resultado
 
 
@@ -195,7 +229,7 @@ class EscaladoZScore(Transformador):
         df = df.copy()
         df[self._cols] = self._scaler.fit_transform(df[self._cols])
         for col in self._cols:
-            print(f"[OK] EscaladoZScore: '{col}' → media={df[col].mean():.4f}, "
+            print(f"[OK] EscaladoZScore: '{col}' ==> media={df[col].mean():.4f}, "
                   f"std={df[col].std():.4f}")
         return df
 
@@ -225,6 +259,6 @@ class EscaladoMinMax(Transformador):
         df = df.copy()
         df[self._cols] = self._scaler.fit_transform(df[self._cols])
         for col in self._cols:
-            print(f"[OK] EscaladoMinMax: '{col}' → min={df[col].min():.4f}, "
+            print(f"[OK] EscaladoMinMax: '{col}' ==> min={df[col].min():.4f}, "
                   f"max={df[col].max():.4f}")
         return df

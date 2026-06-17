@@ -10,12 +10,10 @@ Principios aplicados
 - Herencia        : Preprocesador hereda de object; Pipeline opera sobre Transformador.
 - Polimorfismo    : Pipeline llama .aplicar(df) sin importar la subclase concreta.
 - Responsabilidad única: cada método realiza una sola transformación conceptual.
-
-Autores: Grupo 1 — MCDI500
 """
 
 from __future__ import annotations
-
+import numpy as np
 import pandas as pd
 from typing import List
 
@@ -30,16 +28,16 @@ from transformador import (
 )
 
 
-# ──────────────────────────────────────────────
-# Pipeline orquestador (polimorfismo puro)
-# ──────────────────────────────────────────────
+############################################
+# Pipeline orquestador (polimorfismo puro) #
+############################################
 
 class Pipeline:
     """
     Orquesta una lista de etapas :class:`Transformador` en orden.
 
     El Pipeline no sabe qué hace cada etapa: las llama todas por igual via
-    :meth:`Transformador.aplicar`. Eso es polimorfismo.
+    :método:`Transformador.aplicar`. Eso es polimorfismo.
 
     Parámetros
     ----------
@@ -81,9 +79,9 @@ class Pipeline:
         return f"Pipeline([{etapas_str}])"
 
 
-# ──────────────────────────────────────────────
-# Preprocesador: encapsula el pipeline de F2
-# ──────────────────────────────────────────────
+##############################################
+# Preprocesador: encapsula el pipeline de F2 #
+##############################################
 
 class Preprocesador:
     """
@@ -92,12 +90,12 @@ class Preprocesador:
     El estado interno (_df) es protegido; los métodos lo modifican y devuelven
     self para permitir el encadenamiento fluido de operaciones.
 
-    Parameters
+    Parámetros
     ----------
     df : pd.DataFrame
         Dataset raw de entrada. Se trabaja sobre una copia para preservar el original.
 
-    Examples
+    Ejemplos
     --------
     >>> prep = Preprocesador(df_raw)
     >>> df_procesado = (prep
@@ -120,18 +118,32 @@ class Preprocesador:
     }
 
     _NOMINALES = {
-        "Major_Category": [
-            "major_Arts", "major_Business", "major_Humanities",
-            "major_Medical", "major_STEM"
-        ],
-        "Primary_Use_Case": [
-            "use_Copywriting_Drafting", "use_Debugging_Troubleshooting",
-            "use_Direct_Answer_Generation", "use_Ideation", "use_Summarizing_Reading"
-        ],
-        "Institutional_Policy": [
-            "policy_Actively_Encouraged", "policy_Allowed_With_Citation",
-            "policy_Strict_Ban"
-        ],
+        "Major_Category": {
+            "categorias": ["Arts", "Business", "Humanities", "Medical", "STEM"],
+            "nombres": [
+                "major_Arts", "major_Business", "major_Humanities",
+                "major_Medical", "major_STEM"
+            ],
+        },
+        "Primary_Use_Case": {
+            "categorias": [
+                "Copywriting/Drafting", "Debugging/Troubleshooting",
+                "Direct_Answer_Generation", "Ideation", "Summarizing_Reading"
+            ],
+            "nombres": [
+                "use_Copywriting_Drafting", "use_Debugging_Troubleshooting",
+                "use_Direct_Answer_Generation", "use_Ideation", "use_Summarizing_Reading"
+            ],
+        },
+        "Institutional_Policy": {
+            "categorias": [
+                "Actively_Encouraged", "Allowed_With_Citation", "Strict_Ban"
+            ],
+            "nombres": [
+                "policy_Actively_Encouraged", "policy_Allowed_With_Citation",
+                "policy_Strict_Ban"
+            ],
+        },
     }
 
     _COLS_STANDARD = [
@@ -147,7 +159,7 @@ class Preprocesador:
     def __init__(self, df: pd.DataFrame) -> None:
         self._df = df.copy()   # encapsulamiento: copia protegida
 
-    # ── Métodos de transformación (cada uno: una sola responsabilidad) ──
+    # *** Métodos de transformación (cada uno: una sola responsabilidad) ***
 
     def eliminar_id(self) -> "Preprocesador":
         """Elimina Student_ID: identificador sin valor predictivo."""
@@ -166,9 +178,13 @@ class Preprocesador:
         return self
 
     def codificar_nominales(self) -> "Preprocesador":
-        """Aplica One-Hot Encoding a las tres variables nominales."""
-        for col, nombres in self._NOMINALES.items():
-            self._df = CodificadorOneHot(col, nombres).aplicar(self._df)
+        """Aplica One-Hot Encoding a las tres variables nominales, usando un
+        catálogo de categorías fijo para que el resultado sea consistente sin 
+        importar cuántas filas se procesen."""
+        for col, spec in self._NOMINALES.items():
+            self._df = CodificadorOneHot(
+                col, spec["nombres"], categorias=spec["categorias"]
+            ).aplicar(self._df)
         return self
 
     def escalar(self) -> "Preprocesador":
@@ -187,7 +203,7 @@ class Preprocesador:
         """Devuelve el DataFrame transformado."""
         return self._df.copy()
 
-    # ── Validación interna ──
+    # *** Validación interna ***
 
     def validar(self) -> "Preprocesador":
         """
