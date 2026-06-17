@@ -21,7 +21,6 @@ Módulos implementados
 from __future__ import annotations
 
 import timeit
-import numpy as np
 import pandas as pd
 from typing import Optional
 

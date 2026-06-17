@@ -29,7 +29,7 @@ class GestorDatos:
             return df
         except FileNotFoundError:
             raise FileNotFoundError(
-            f"[ERROR] No se encontró el archivo en {self.ruta_entrada}'."
+            f"[ERROR] No se encontró el archivo en {self.ruta_entrada}"
             "Verificar que el archivo CSV se encuentre en data/raw."
         )
 
