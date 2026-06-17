@@ -143,6 +143,108 @@ Refactorizar el pipeline de preprocesamiento de la Fase 2 hacia Programación Or
 
 #### Arquitectura de clases
 
+**Diagrama de clases**
+A continuación un diagrama de clases de la fase 3 y una tabla con las especificaciones de cada clase/método.
+```mermaid
+classDiagram
+    %% El Notebook actúa como el "Cliente" que orquesta los objetos
+    class JupyterNotebook_Cliente {
+        <<Entorno de Ejecución>>
+    }
+    class GestorDatos {
+        +ruta_entrada: str
+        +ruta_salida: str
+        +__init__(ruta_entrada: str, ruta_salida: str)
+        +cargar_datos() DataFrame
+        +guardar_datos(df: DataFrame) None
+    }
+    class Transformador {
+        <<abstract>>
+        +aplicar(df: DataFrame)* DataFrame
+        +__repr__() str
+    }
+    class EliminadorColumna {
+        -_col: str
+        +__init__(col: str)
+        +aplicar(df: DataFrame) DataFrame
+    }
+    class CastBooleano {
+        -_col: str
+        +__init__(col: str)
+        +aplicar(df: DataFrame) DataFrame
+    }
+    class CodificadorOrdinal {
+        -_col: str
+        -_orden: list
+        -_mapping: dict
+        +__init__(col: str, orden: list)
+        +aplicar(df: DataFrame) DataFrame
+    }
+    class CodificadorOneHot {
+        -_col: str
+        -_nombres_salida: list
+        -_le: LabelEncoder
+        -_ohe: OneHotEncoder
+        +__init__(col: str, nombres_salida: list)
+        +aplicar(df: DataFrame) DataFrame
+    }
+    class EscaladoZScore {
+        -_cols: list
+        -_scaler: StandardScaler
+        +__init__(cols: list)
+        +aplicar(df: DataFrame) DataFrame
+    }
+    class EscaladoMinMax {
+        -_cols: list
+        -_scaler: MinMaxScaler
+        +__init__(cols: list)
+        +aplicar(df: DataFrame) DataFrame
+    }
+    class Pipeline {
+        -etapas: List~Transformador~
+        +__init__(etapas: List~Transformador~)
+        +ejecutar(df: DataFrame) DataFrame
+    }
+    class BuscadorPerfilRiesgo {
+        -df: DataFrame
+        -umbral_gpa: float
+        -umbral_ia: float
+        +__init__(df: DataFrame, umbral_gpa: float, umbral_ia: float)
+        +busqueda_lineal() list
+        +busqueda_binaria() list
+        +comparar_tiempos(n_repeticiones: int) dict
+    }
+    class OrdenadorMergeSort {
+        -df: DataFrame
+        -columna: str
+        +__init__(df: DataFrame, columna: str)
+        +ordenar_columna() list
+        -_merge_sort_recursivo(lista: list) list
+        +comparar_tiempos(n_repeticiones: int) dict
+    }
+    class DetectorOutliersIQR {
+        -df: DataFrame
+        -columnas: list
+        +__init__(df: DataFrame, columnas: list)
+        +detectar() DataFrame
+    }
+    %% Relaciones de Herencia
+    Transformador <|-- EliminadorColumna
+    Transformador <|-- CastBooleano
+    Transformador <|-- CodificadorOrdinal
+    Transformador <|-- CodificadorOneHot
+    Transformador <|-- EscaladoZScore
+    Transformador <|-- EscaladoMinMax
+    %% Relaciones de Agregación
+    Pipeline o-- Transformador : Agrega etapas
+    %% Relaciones de Uso desde el Notebook (Bajo Acoplamiento)
+    JupyterNotebook_Cliente ..> GestorDatos : Instancia para I/O
+    JupyterNotebook_Cliente ..> Pipeline : Inyecta DataFrame
+    JupyterNotebook_Cliente ..> BuscadorPerfilRiesgo : Usa
+    JupyterNotebook_Cliente ..> OrdenadorMergeSort : Usa
+    JupyterNotebook_Cliente ..> DetectorOutliersIQR : Usa
+```
+
 | Módulo (`src/`) | Clase | Responsabilidad |
 |---|---|---|
 | `gestor_datos.py` | `GestorDatos` | Carga el dataset raw y exporta el dataset procesado (E/S exclusivamente). |
@@ -190,7 +292,5 @@ Refactorizar el pipeline de preprocesamiento de la Fase 2 hacia Programación Or
 
 #### Limitaciones conocidas
 
-`CodificadorOneHot` ajusta las categorías (`LabelEncoder.fit`) sobre el subconjunto de datos que recibe en cada llamada, no sobre el dataset completo. Esto significa que si se aplica sobre un lote con menos categorías que las declaradas en `nombres` (por ejemplo, una sola fila), lanzará `ValueError`. Tenerlo presente al diseñar pruebas de caso límite con muestras reducidas.
-  
-
-
+#### Limitaciones conocidas (resueltas)
+`CodificadorOneHot` ahora acepta un parámetro `categorias` con el catálogo completo de valores posibles, fijado una sola vez en `Preprocesador._NOMINALES`. El número de columnas binarias generadas ya no depende del tamaño del lote: una sola fila produce el mismo conjunto de 13 columnas OHE que el dataset completo, con ceros en las categorías ausentes. Adicionalmente, si un lote contiene una categoría fuera del catálogo declarado, se lanza `ValueError` con un mensaje explícito en vez de fallar.
