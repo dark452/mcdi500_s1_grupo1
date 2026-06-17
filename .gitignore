@@ -7,4 +7,4 @@ env/
 .ipynb_checkpoints/
 
 # Python cache
- src/__pycache__/
+src/__pycache__/
