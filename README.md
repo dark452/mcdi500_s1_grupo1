@@ -70,7 +70,7 @@ python -m venv .venv
 source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install numpy pandas scikit-learn matplotlib seaborn jupyter
 pip freeze > requirements.txt
-jupyter notebook notebooks/F1_Definicion.ipynb
+jupyter notebook notebooks/F3_Rendimiento_POO.ipynb
 ```
 
 ### Fase 2 — EDA y Preparación de Datos
