@@ -206,7 +206,7 @@ class OrdenadorMergeSort:
         """
         Ordena una lista de números con Merge Sort recursivo.
 
-        Caso base : len(lista) <= 1 → ya está ordenada.
+        Caso base : len(lista) <= 1 ==> ya está ordenada.
         Caso recursivo: divide a la mitad, ordena cada parte, combina.
 
         Parámetros
@@ -402,14 +402,14 @@ class AnalizadorRiesgo:
 
         print("\n[1/5] Búsqueda de perfil de riesgo (lineal)...")
         perfil = self._buscador.busqueda_lineal()
-        print(f"      → {len(perfil)} estudiantes identificados.")
+        print(f"      ==> {len(perfil)} estudiantes identificados.")
 
         print("\n[2/5] Comparando tiempos de búsqueda...")
         t_busqueda = self._buscador.comparar_tiempos(n_repeticiones=3)
 
         print("\n[3/5] Ordenando GPA con Merge Sort recursivo...")
         gpa_ord = self._ordenador.ordenar_columna()
-        print(f"      → {len(gpa_ord)} valores ordenados. "
+        print(f"      ==> {len(gpa_ord)} valores ordenados. "
               f"Rango: [{gpa_ord[0]:.4f}, {gpa_ord[-1]:.4f}]")
 
         print("\n[4/5] Comparando tiempos de ordenamiento...")
