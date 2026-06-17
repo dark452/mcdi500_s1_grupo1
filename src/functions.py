@@ -1,6 +1,5 @@
 
 import pandas as pd
-import numpy as np
 import matplotlib.pyplot as plt
 from sklearn import preprocessing
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
@@ -213,7 +212,7 @@ def cast_bool_to_int(df: pd.DataFrame, col: str = 'Paid_Subscription') -> pd.Dat
         return df
     print(f'[INFO] {col} — dtype antes: {df[col].dtype}')
     # Conversión via numpy array, evita inferencia de tipos de pandas
-    df[col] = df[col].to_numpy().astype(int)
+    df[col] = df[col].to_numpy().astype('int64')
     print(f'[INFO] {col} — dtype despues: {df[col].dtype}')
     if df[col].dtype != 'int64':
         raise TypeError(

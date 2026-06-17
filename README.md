@@ -41,11 +41,20 @@ El objetivo del proyecto es realizar un análisis del impacto de la utilización
 
 ```bash
 mcdi500_s1_grupo1/
-├── data/raw/          # dataset original (INMUTABLE)
-├── data/processed/    # datos transformados
-├── notebooks/         # notebooks Jupyter por fase
-├── src/               # funciones Python reutilizables
-├── docs/              # documentacion adicional
+├── data/
+│   ├── raw/                        # dataset original (INMUTABLE)
+│   └── processed/                  # datos transformados (F2 y F3)
+├── notebooks/
+│   ├── F1_Definicion.ipynb
+│   ├── F2_EDA_Limpieza.ipynb
+│   └── F3_Rendimiento_POOs.ipynb     
+├── src/
+│   ├── functions.py                # F2 — pipeline funcional (preprocesamiento)
+│   ├── gestor_datos.py             # F3 — GestorDatos (carga y exportación)
+│   ├── transformador.py            # F3 — Transformador (ABC) y subclases
+│   ├── preprocesador.py            # F3 — Preprocesador, Pipeline
+│   └── algoritmo.py                # F3 — núcleo algorítmico (búsqueda, orden, outliers)
+├── docs/                           # documentacion adicional
 ├── requirements.txt
 └── README.md
 ```
@@ -61,7 +70,7 @@ python -m venv .venv
 source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install numpy pandas scikit-learn matplotlib seaborn jupyter
 pip freeze > requirements.txt
-jupyter notebook notebooks/F1_Definicion.ipynb
+jupyter notebook notebooks/F3_Rendimiento_POO.ipynb
 ```
 
 ### Fase 2 — EDA y Preparación de Datos
@@ -108,6 +117,180 @@ Se importan las librerías necesarias para cargar, explorar, transformar y visua
 * **`codificar_one_hot(df, col, nombres)`**: Codifica una variable nominal mediante `LabelEncoder` y `OneHotEncoder`, retornando el DataFrame con las columnas binarias añadidas y la columna original eliminada.
 * **`escalar_caracteristicas(df, cols_standard, cols_minmax)`**: Escala las variables numéricas aplicando `StandardScaler` o `MinMaxScaler` según la distribución de cada columna, y retorna una tupla con el DataFrame escalado y ambos escaladores ajustados.
 * **`export_processed(df, file_path)`**: Exporta el dataset procesado en formato CSV en la ruta recibida por parámetro.
-  
 
+---
 
+### Fase 3 — POO, Algoritmos y Eficiencia Computacional
+
+*Proyecto:* Impacto de la IA Generativa en Estudiantes de Educación Superior
+
+#### Objetivo
+
+Refactorizar el pipeline de preprocesamiento de la Fase 2 hacia Programación Orientada a Objetos (POO), definir y resolver un problema algorítmico sobre el dataset, y medir la eficiencia computacional de las soluciones implementadas con `timeit`.
+
+#### Problema algorítmico definido
+
+¿Qué estudiantes presentan el perfil de mayor riesgo académico, combinando alto nivel de burnout (`Burnout_Risk_Level = High`), bajo rendimiento post-semestre (`Post_Semester_GPA` ≤ percentil 25) y uso intensivo de IA (`Weekly_GenAI_Hours` ≥ percentil 75)?
+
+#### Funcionalidades
+
+1. *Encapsulamiento del pipeline de F2*: las funciones de `functions.py` se reorganizan como métodos de la clase `Preprocesador`, con estado interno protegido y métodos encadenables.
+2. *Búsqueda del perfil de riesgo*: búsqueda lineal O(n) y vectorizada sobre el dataset completo; búsqueda binaria O(log n) sobre la columna de GPA ordenada.
+3. *Ordenamiento recursivo*: Merge Sort (divide y vencerás, O(n log n)) sobre `Post_Semester_GPA`.
+4. *Detección de outliers*: método IQR aplicado a las ocho variables numéricas del dataset.
+5. *Medición de eficiencia*: comparación con `timeit` entre implementaciones equivalentes (lineal vs. vectorizada; Merge Sort vs. `sorted()` nativo), con interpretación en términos de complejidad Big-O.
+6. *Validación técnica*: pruebas de caso normal, caso límite y excepciones controladas (`KeyError`, `ValueError`).
+
+#### Arquitectura de clases
+
+**Diagrama de clases**
+A continuación un diagrama de clases de la fase 3 y una tabla con las especificaciones de cada clase/método.
+```mermaid
+classDiagram
+    %% El Notebook actúa como el "Cliente" que orquesta los objetos
+    class JupyterNotebook_Cliente {
+        <<Entorno de Ejecución>>
+    }
+    class GestorDatos {
+        +ruta_entrada: str
+        +ruta_salida: str
+        +__init__(ruta_entrada: str, ruta_salida: str)
+        +cargar_datos() DataFrame
+        +guardar_datos(df: DataFrame) None
+    }
+    class Transformador {
+        <<abstract>>
+        +aplicar(df: DataFrame)* DataFrame
+        +__repr__() str
+    }
+    class EliminadorColumna {
+        -_col: str
+        +__init__(col: str)
+        +aplicar(df: DataFrame) DataFrame
+    }
+    class CastBooleano {
+        -_col: str
+        +__init__(col: str)
+        +aplicar(df: DataFrame) DataFrame
+    }
+    class CodificadorOrdinal {
+        -_col: str
+        -_orden: list
+        -_mapping: dict
+        +__init__(col: str, orden: list)
+        +aplicar(df: DataFrame) DataFrame
+    }
+    class CodificadorOneHot {
+        -_col: str
+        -_nombres_salida: list
+        -_le: LabelEncoder
+        -_ohe: OneHotEncoder
+        +__init__(col: str, nombres_salida: list)
+        +aplicar(df: DataFrame) DataFrame
+    }
+    class EscaladoZScore {
+        -_cols: list
+        -_scaler: StandardScaler
+        +__init__(cols: list)
+        +aplicar(df: DataFrame) DataFrame
+    }
+    class EscaladoMinMax {
+        -_cols: list
+        -_scaler: MinMaxScaler
+        +__init__(cols: list)
+        +aplicar(df: DataFrame) DataFrame
+    }
+    class Pipeline {
+        -etapas: List~Transformador~
+        +__init__(etapas: List~Transformador~)
+        +ejecutar(df: DataFrame) DataFrame
+    }
+    class BuscadorPerfilRiesgo {
+        -df: DataFrame
+        -umbral_gpa: float
+        -umbral_ia: float
+        +__init__(df: DataFrame, umbral_gpa: float, umbral_ia: float)
+        +busqueda_lineal() list
+        +busqueda_binaria() list
+        +comparar_tiempos(n_repeticiones: int) dict
+    }
+    class OrdenadorMergeSort {
+        -df: DataFrame
+        -columna: str
+        +__init__(df: DataFrame, columna: str)
+        +ordenar_columna() list
+        -_merge_sort_recursivo(lista: list) list
+        +comparar_tiempos(n_repeticiones: int) dict
+    }
+    class DetectorOutliersIQR {
+        -df: DataFrame
+        -columnas: list
+        +__init__(df: DataFrame, columnas: list)
+        +detectar() DataFrame
+    }
+    %% Relaciones de Herencia
+    Transformador <|-- EliminadorColumna
+    Transformador <|-- CastBooleano
+    Transformador <|-- CodificadorOrdinal
+    Transformador <|-- CodificadorOneHot
+    Transformador <|-- EscaladoZScore
+    Transformador <|-- EscaladoMinMax
+    %% Relaciones de Agregación
+    Pipeline o-- Transformador : Agrega etapas
+    %% Relaciones de Uso desde el Notebook (Bajo Acoplamiento)
+    JupyterNotebook_Cliente ..> GestorDatos : Instancia para I/O
+    JupyterNotebook_Cliente ..> Pipeline : Inyecta DataFrame
+    JupyterNotebook_Cliente ..> BuscadorPerfilRiesgo : Usa
+    JupyterNotebook_Cliente ..> OrdenadorMergeSort : Usa
+    JupyterNotebook_Cliente ..> DetectorOutliersIQR : Usa
+```
+
+| Módulo (`src/`) | Clase | Responsabilidad |
+|---|---|---|
+| `gestor_datos.py` | `GestorDatos` | Carga el dataset raw y exporta el dataset procesado (E/S exclusivamente). |
+| `transformador.py` | `Transformador` (ABC) | Contrato común: define `aplicar(df)` como método abstracto. |
+| `transformador.py` | `EliminadorColumna` | Elimina columnas sin valor predictivo (p. ej. `Student_ID`). |
+| `transformador.py` | `CastBooleano` | Convierte columnas booleanas a `int64`. |
+| `transformador.py` | `CodificadorOrdinal` | Codifica variables ordinales respetando su jerarquía real. |
+| `transformador.py` | `CodificadorOneHot` | Codifica variables nominales con `LabelEncoder` + `OneHotEncoder`. |
+| `transformador.py` | `EscaladoZScore` | Estandariza variables con `StandardScaler` (media=0, std=1). |
+| `transformador.py` | `EscaladoMinMax` | Normaliza variables con `MinMaxScaler` (rango [0, 1]). |
+| `preprocesador.py` | `Pipeline` | Orquesta una lista de `Transformador` en orden (polimorfismo). |
+| `preprocesador.py` | `Preprocesador` | Encapsula el pipeline completo de F2; estado interno protegido (`self._df`). |
+| `algoritmo.py` | `BuscadorPerfilRiesgo` | Búsqueda lineal, vectorizada y binaria del perfil de riesgo. |
+| `algoritmo.py` | `OrdenadorMergeSort` | Merge Sort recursivo sobre una columna numérica. |
+| `algoritmo.py` | `DetectorOutliersIQR` | Detección de valores atípicos por rango intercuartílico. |
+| `algoritmo.py` | `AnalizadorRiesgo` | Orquesta los tres módulos algorítmicos anteriores. |
+
+#### Principios de POO aplicados
+
+- **Encapsulamiento**: el `DataFrame` vive en atributos protegidos (`self._df`); solo se exponen métodos públicos para modificarlo.
+- **Herencia**: todas las transformaciones heredan de `Transformador` (clase abstracta) e implementan `aplicar(df)`.
+- **Polimorfismo**: `Pipeline.ejecutar()` llama `etapa.aplicar(df)` sin conocer la subclase concreta.
+- **Responsabilidad única**: cada clase resuelve exactamente un problema (E/S, transformación, búsqueda, orden o detección de outliers).
+
+#### Clases para reutilizar en el código Python
+
+* **`GestorDatos(ruta_entrada, ruta_salida)`**: `cargar_datos()` lee el CSV raw; `guardar_datos(df)` exporta el dataset procesado.
+* **`Preprocesador(df)`**: `eliminar_id()`, `cast_bool()`, `codificar_ordinales()`, `codificar_nominales()`, `escalar()`, `validar()`, `resultado()`. Métodos encadenables (`prep.eliminar_id().cast_bool()...`).
+* **`Pipeline(etapas)`**: `ejecutar(df)` aplica una lista de objetos `Transformador` en orden.
+* **`BuscadorPerfilRiesgo(df)`**: `busqueda_lineal()`, `busqueda_binaria_gpa(lista, objetivo)`, `comparar_tiempos()`.
+* **`OrdenadorMergeSort(df, col)`**: `merge_sort(lista)`, `ordenar_columna()`, `comparar_tiempos()`.
+* **`DetectorOutliersIQR(df, columnas)`**: `detectar()`, `perfil_outliers()`.
+* **`AnalizadorRiesgo(df)`**: `ejecutar_analisis_completo()` integra búsqueda, ordenamiento y detección de outliers en un solo flujo.
+
+#### Resultados de referencia (50.000 registros)
+
+| Métrica | Valor |
+|---|---|
+| Dataset procesado | 50.000 filas × 25 columnas |
+| Estudiantes en perfil de riesgo | 2.094 (≈4,2 % del total) |
+| Búsqueda vectorizada vs. lineal | Significativamente más rápida; mismo O(n), distinta constante de implementación (C vs. Python puro) |
+| Merge Sort recursivo vs. `sorted()` nativo | `sorted()` más rápido; mismo O(n log n), `sorted()` implementado en C (Timsort) |
+
+*Los tiempos exactos dependen del hardware de ejecución; ver el notebook de Fase 3 para los valores medidos en cada corrida con `timeit`.*
+
+#### Limitaciones conocidas
+
+#### Limitaciones conocidas (resueltas)
+`CodificadorOneHot` ahora acepta un parámetro `categorias` con el catálogo completo de valores posibles, fijado una sola vez en `Preprocesador._NOMINALES`. El número de columnas binarias generadas ya no depende del tamaño del lote: una sola fila produce el mismo conjunto de 13 columnas OHE que el dataset completo, con ceros en las categorías ausentes. Adicionalmente, si un lote contiene una categoría fuera del catálogo declarado, se lanza `ValueError` con un mensaje explícito en vez de fallar.
