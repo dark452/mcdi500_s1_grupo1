@@ -295,4 +295,65 @@ classDiagram
 #### Limitaciones conocidas
 
 #### Limitaciones conocidas (resueltas)
+
 `CodificadorOneHot` ahora acepta un parámetro `categorias` con el catálogo completo de valores posibles, fijado una sola vez en `Preprocesador._NOMINALES`. El número de columnas binarias generadas ya no depende del tamaño del lote: una sola fila produce el mismo conjunto de 13 columnas OHE que el dataset completo, con ceros en las categorías ausentes. Adicionalmente, si un lote contiene una categoría fuera del catálogo declarado, se lanza `ValueError` con un mensaje explícito en vez de fallar.
+
+### Fase 4 — Integración y Visualización
+
+Esta fase integra de extremo a extremo las fases F1–F4: carga el dataset raw, ejecuta el pipeline de preprocesamiento POO construido en F3, corre el núcleo algorítmico (búsqueda, ordenamiento, detección de outliers) con sus mediciones de eficiencia, y construye las visualizaciones analíticas de F4 con su interpretación.
+
+| Notebook | Fase |
+|---|---|
+|[F1_Definicion.ipynb](notebooks/F1_Definicion.ipynb) | Fase 1 - Definición |
+| [F2_EDA_Limpieza.ipynb](notebooks/F2_EDA_Limpieza.ipynb) | Fase 2 - EDA y Limpieza |
+| [F3_Rendimiento_POO.ipynb](notebooks/F3_Rendimiento_POO.ipynb) | Fase 3 - Rendimiento y POO | 
+| [F4_Integrador.ipynb](notebooks/F4_Integrador.ipynb) | Fase 4 los integra y produce el resultado final reproducible. |
+
+#### Funcionalidades F4
+
+El notebook [F4_Integrador.ipynb](notebooks/F4_Integrador.ipynb) contiene 14 celdas de código organizadas en 11 secciones numeradas que siguen el flujo F1 ==> F4:
+
+| Sección | Contenido | Resultado visible |
+| :--- | :--- | :--- |
+| **1. Configuración e importaciones** | Librerías, sys.path, módulos propios, rutas | [OK] Entorno configurado. |
+| **2. Fase 1 - Recapitulación** | Carga del dataset raw con GestorDatos | Shape: 50.000 × 16, primeras filas |
+| **3. Fase 2 - Recapitulación** | Resumen EDA y decisiones de preprocesamiento | Celda Markdown |
+| **4. Fase 3 - Recapitulación** | Ejecución del pipeline POO y AnalizadorRiesgo | Traza de 14 transformaciones + tiempos |
+| **5. Acto 1 (F4)** | Prevalencia de burnout alto | Gráfico de barras + interpretación |
+| **6. Acto 2 (F4)** | Perfil de riesgo vs. resto | Histograma comparativo + interpretación |
+| **7. Acto 3 (F4)** | Política institucional y tasa de riesgo | Gráfico de barras + interpretación |
+| **8. Resultados** | Correspondencia de los 3 gráficos con objetivos | Celda Markdown |
+| **9. Validación y reflexión técnica** | 3 assertions de cierre + reflexión grupal | [OK] Validaciones superadas. |
+| **10. Discusión** | Contraste con hipótesis, limitaciones | Celda Markdown |
+| **11. Conclusiones** | Aprendizajes y mejoras futuras | Celda Markdown |
+| **12. Trazabilidad de mejoras** | Tabla comparativa F2 ==> F4 con commits | DataFrame con 4 filas |
+| **13. Exportación final** | GestorDatos.guardar_datos(df_procesado) | CSV en data/processed/, 50.000 × 25 |
+
+#### Visualizaciones analíticas (storytelling)
+
+Las visualizaciones de la Fase 4 utilizan directamente el dataset procesado generado por el pipeline POO construido en la Fase 3 y reproducido en [F4_Integrador.ipynb](notebooks/F4_Integrador.ipynb), por lo que no requieren transformaciones adicionales. En la Fase 3 (sección 7 de [F3_Rendimiento_POO.ipynb](notebooks/F3_Rendimiento_POO.ipynb)) se generaron visualizaciones exploratorias del perfil de riesgo académico que mostraron por separado la distribución de burnout, el GPA y las horas de uso de IA. La Fase 4 retoma esas variables y las organiza en una narrativa estructurada de tres actos, pasando de la exploración descriptiva a la comunicación orientada al hallazgo.
+
+Se crearon 3 actos:
+
+- Acto 1 (contexto): Panorama general
+- Acto 2 (conflicto): El contraste que define el perfil de riesgo
+- Acto 3 (resolución): Una variable institucional que abre una implicancia práctica. Cada gráfico lleva un título que declara el hallazgo, no el tema, siguiendo la pista de la guía de apoyo.
+
+#### Resultados
+
+Las tres visualizaciones anteriores corresponden directamente a los objetivos específicos del proyecto (apartado III del informe):
+
+##### Acto 1
+
+Cuantifica la prevalencia del burnout alto (objetivo de caracterización descriptiva)
+![Nivel de Burnout](data/processed/F4_acto1_contexto.png)
+
+##### Acto 2
+
+Valida que el criterio combinado de riesgo definido en F3 produce un subgrupo coherente y no disperso (objetivo de identificación del perfil de riesgo)
+![GPA post-semestre](data/processed/F4_acto2_conflicto.png)
+
+##### Acto 3
+
+Relaciona ese perfil con una variable institucional no incluida en el criterio de búsqueda original, aportando una primera pista sobre qué factores externos se asocian al riesgo (objetivo de relación con factores institucionales).
+![Política institucional](data/processed/F4_acto3_resolucion.png)
