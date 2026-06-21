@@ -47,7 +47,8 @@ mcdi500_s1_grupo1/
 ├── notebooks/
 │   ├── F1_Definicion.ipynb
 │   ├── F2_EDA_Limpieza.ipynb
-│   └── F3_Rendimiento_POOs.ipynb     
+│   ├── F3_Rendimiento_POO.ipynb     
+│   └── F4_Integrador.ipynb     
 ├── src/
 │   ├── functions.py                # F2 — pipeline funcional (preprocesamiento)
 │   ├── gestor_datos.py             # F3 — GestorDatos (carga y exportación)
@@ -55,6 +56,7 @@ mcdi500_s1_grupo1/
 │   ├── preprocesador.py            # F3 — Preprocesador, Pipeline
 │   └── algoritmo.py                # F3 — núcleo algorítmico (búsqueda, orden, outliers)
 ├── docs/                           # documentacion adicional
+│   └── changelog.md                #(markdown con changelog) 
 ├── requirements.txt
 └── README.md
 ```
@@ -70,7 +72,7 @@ python -m venv .venv
 source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install numpy pandas scikit-learn matplotlib seaborn jupyter
 pip freeze > requirements.txt
-jupyter notebook notebooks/F3_Rendimiento_POO.ipynb
+jupyter notebook notebooks/F4_Integrador.ipynb #Se puede ejecutar cualquier Fase
 ```
 
 ### Fase 2 — EDA y Preparación de Datos
