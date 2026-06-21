@@ -56,7 +56,7 @@ mcdi500_s1_grupo1/
 │   ├── preprocesador.py            # F3 — Preprocesador, Pipeline
 │   └── algoritmo.py                # F3 — núcleo algorítmico (búsqueda, orden, outliers)
 ├── docs/                           # documentacion adicional
-│   └── changelog.md                #(markdown con changelog) 
+│   └── CHANGELOG.md                #(markdown con CHANGELOG) 
 ├── requirements.txt
 └── README.md
 ```
