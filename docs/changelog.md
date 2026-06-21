@@ -5,15 +5,14 @@ repositorio (`git log --all`). Sigue el formato sugerido por la guía de la Suma
 descripción, hash de commit corto y justificación técnica.
 
 Las fechas corresponden al calendario registrado en el repositorio (zona horaria del entorno de
-desarrollo del equipo). La sección F4 refleja los commits de la rama `feature/visualizacion`
-creados el 2026-06-19; esa rama estaba pendiente de merge a `main` al momento de actualizar
-este documento.
+desarrollo del equipo).
 
 ---
 
 ## [F1] — 2026-06-05 a 2026-06-07
 
 ### Added
+
 - Estructura inicial del entorno de trabajo: carpetas `data/raw`, `data/processed`, `notebooks/`,
   `src/`, `docs/`, `.gitignore` y `requirements.txt` (commits `17a3ecf`, `0f5ff33`, `398e014`).
 - Dataset crudo `ai_student_impact_dataset.csv` en `data/raw/` como archivo inmutable
@@ -25,6 +24,7 @@ este documento.
   (commits `f6fc890`, `c00584a`).
 
 ### Changed
+
 - Corrección de ruta del dataset y eliminación de importación de `numpy` no utilizada en
   `F1_Definicion.ipynb` (commit `f1a1c01`).
 - Ajuste de funciones de exploración y celdas de comentarios (commit `cb033d9`).
@@ -39,6 +39,7 @@ este documento.
 ## [F2] — 2026-06-08 a 2026-06-10
 
 ### Added
+
 - `F2_EDA_Limpieza.ipynb` creado con descripción de la Fase 2 y función `load_data`
   (commit `56e017a`).
 - Funciones de exploración y limpieza: `show_tipos`, `show_nulos`, `show_estadisticas`,
@@ -57,6 +58,7 @@ este documento.
 - Sección F2 añadida al `README.md` con objetivos y funcionalidades (commit `362e3c1`).
 
 ### Changed
+
 - Reorganización de secciones, numeración de títulos y mejoras de formato en el notebook
   (commits `67b936c`, `d6ca788`, `d2fe872`).
 - Corrección de typo en `load_data` y eliminación de asignación duplicada (commit `0e9278`).
@@ -70,6 +72,7 @@ este documento.
 ## [F3] — 2026-06-16 a 2026-06-17
 
 ### Added
+
 - `F3_Rendimiento_POO.ipynb` creado con descripción inicial e importación de librerías;
   proyección de F2 incluida (commits `a984989`, `2ae52c5`).
 - Módulo `src/functions.py`: refactorización de funciones de F2 a código reutilizable
@@ -94,6 +97,7 @@ este documento.
 - README actualizado con sección Fase 3 (commit `fee0cc1`).
 
 ### Changed
+
 - README actualizado con diagrama de clases y limitaciones conocidas (commit `0d0cf7c`).
 - README actualizado con instrucciones de reproducción del entorno (commit `7bbe76e`).
 - `.gitignore` actualizado para incluir `data/processed/` y excluir `__pycache__`
@@ -103,6 +107,7 @@ este documento.
   (commits `b8e5207`, `cdae102`).
 
 ### Fixed
+
 - Bug en `CodificadorOneHot`: el método fallaba al procesar lotes parciales porque el catálogo
   de categorías no estaba fijado; se resolvió definiendo el conjunto de categorías al momento
   de la primera transformación (commit `d9840b0`).
@@ -113,6 +118,7 @@ este documento.
 ## [F4] — 2026-06-19
 
 ### Added
+
 - `notebooks/F4_Integrador.ipynb` creado como notebook integrador del cierre de proyecto
   (commit `287d73f`).
 - Configuraciones iniciales del notebook y resumen de la Fase 1 con hipótesis formalizada
@@ -129,5 +135,6 @@ este documento.
   (50.001 filas incluyendo encabezado) (commit `721cdd4`).
 
 ### Changed
+
 - Celdas markdown del notebook corregidas y ajustadas tras la ejecución completa del pipeline
   integrador (commit `721cdd4`).
