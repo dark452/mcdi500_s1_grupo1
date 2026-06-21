@@ -106,4 +106,4 @@ Las fechas corresponden al calendario registrado en el repositorio (zona horaria
 
 - Celdas markdown del notebook corregidas y ajustadas tras la ejecución completa del pipeline integrador (commit `721cdd4`).
 
-- Actualización integral del `README.md` para reflejar la estructura final del proyecto, incluyendo instrucciones de ejecución, detalles del flujo de integración y resumen de los hitos alcanzados en la fase de visualización (commits `e8d1d70`, `23d50ec`, `1a87115`).
+- Actualización integral del `README.md` para reflejar la estructura final del proyecto, incluyendo instrucciones de ejecución, detalles del flujo de integración y resumen de los hitos alcanzados en la fase de visualización (commits `e8d1d70`, `23d50ec`, `1a87115`, `3d4cfb2`).
